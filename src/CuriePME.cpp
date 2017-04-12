@@ -45,6 +45,73 @@ void Intel_PMT::begin(void)
 
 }
 
+int Intel_PMT::beginLearning(int category)
+{
+	if (category <= 0 || category > 32766) {
+		return 0;
+	}
+
+	_category = category;
+	_bufferIndex = 0;
+
+	return 1;
+}
+
+int Intel_PMT::endLearning()
+{
+	return learn(_buffer, _bufferIndex, _category);
+}
+
+int Intel_PMT::beginClassify()
+{
+	_bufferIndex = 0;
+
+	return 1;
+}
+
+int Intel_PMT::endClassify()
+{
+	return classify(_buffer, _bufferIndex);
+}
+
+int Intel_PMT::available()
+{
+	return 0;
+}
+
+int Intel_PMT::read()
+{
+	return -1;
+}
+
+int Intel_PMT::peek()
+{
+	return -1;
+}
+
+void Intel_PMT::flush()
+{
+	// no-op
+}
+
+size_t Intel_PMT::write(uint8_t b)
+{
+	return write(&b, sizeof(b));
+}
+
+size_t Intel_PMT::write(const uint8_t *buffer, size_t size)
+{
+	if (size > (sizeof(_buffer) - _bufferIndex)) {
+		size = sizeof(_buffer) - _bufferIndex;
+	}
+
+	memcpy(&_buffer[_bufferIndex], buffer, size);
+
+	_bufferIndex += size;
+
+	return size;
+}
+
 // custom initializer for the neural network
 void Intel_PMT::begin( 	uint16_t global_context,
 			PATTERN_MATCHING_DISTANCE_MODE distance_mode,

@@ -20,14 +20,41 @@
 #ifndef _CURIE_PME_H_
 #define _CURIE_PME_H_
 
+#include <Arduino.h>
+
 extern "C"
 {
   #include <stdint.h>
 }
 
-class Intel_PMT
+class Intel_PMT : Stream
 {
+public:
+	int beginLearning(int category);
+	int endLearning();
 
+	int beginClassify();
+	int endClassify();
+
+	// from Stream
+	virtual int available();
+	virtual int read();
+	virtual int peek();
+	virtual void flush();
+
+	// from Print
+	virtual size_t write(uint8_t);
+	virtual size_t write(const uint8_t *buffer, size_t size);
+
+	// template <typename T> inline size_t write(T val)
+	// {
+	// 	return write((uint8_t*)&val, sizeof(T));
+	// }
+
+private:
+	uint16_t _category;
+	uint8_t _buffer[128];
+	uint16_t _bufferIndex;
 
 public:
 
