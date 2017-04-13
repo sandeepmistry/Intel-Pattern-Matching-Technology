@@ -27,7 +27,7 @@ extern "C"
   #include <stdint.h>
 }
 
-class Intel_PMT : Stream
+class Intel_PMT : Print
 {
 public:
 	int beginLearning(int category);
@@ -35,12 +35,6 @@ public:
 
 	int beginClassify();
 	int endClassify();
-
-	// from Stream
-	virtual int available();
-	virtual int read();
-	virtual int peek();
-	virtual void flush();
 
 	// from Print
 	virtual size_t write(uint8_t);

@@ -74,26 +74,6 @@ int Intel_PMT::endClassify()
 	return classify(_buffer, _bufferIndex);
 }
 
-int Intel_PMT::available()
-{
-	return 0;
-}
-
-int Intel_PMT::read()
-{
-	return -1;
-}
-
-int Intel_PMT::peek()
-{
-	return -1;
-}
-
-void Intel_PMT::flush()
-{
-	// no-op
-}
-
 size_t Intel_PMT::write(uint8_t b)
 {
 	return write(&b, sizeof(b));
