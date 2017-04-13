@@ -45,6 +45,11 @@ public:
 	// 	return write((uint8_t*)&val, sizeof(T));
 	// }
 
+	void clearState();
+	int saveState(Stream& out);
+	int restoreState(Stream& in);
+	int maxNeuronStateSize();
+
 private:
 	uint16_t _category;
 	uint8_t _buffer[128];

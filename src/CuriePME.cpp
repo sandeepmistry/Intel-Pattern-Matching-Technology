@@ -92,6 +92,65 @@ size_t Intel_PMT::write(const uint8_t *buffer, size_t size)
 	return size;
 }
 
+void Intel_PMT::clearState()
+{
+	forget();
+}
+
+int Intel_PMT::saveState(Stream& out)
+{
+	neuronData nd;
+	int result = 0;
+
+	CuriePME.beginSaveMode();
+
+	while (1) {
+		uint16_t nCount = CuriePME.iterateNeuronsToSave(nd);
+
+		if ((nCount == 0) || (nCount == noMatch)) {
+			result = 1;
+			break;
+		}
+
+		if (out.write((const uint8_t*)&nd, sizeof(nd)) != sizeof(nd)) {
+			break;
+		}
+	}
+
+	CuriePME.endSaveMode();
+
+	return result;
+}
+
+int Intel_PMT::restoreState(Stream& in)
+{
+	neuronData nd;
+	int result = 0;
+
+	CuriePME.beginRestoreMode();
+
+	while (1) {
+		if (in.readBytes((uint8_t*)&nd, sizeof(nd)) != sizeof(nd)) {
+			break;
+		}
+
+		if ((nd.context == minContext) || (nd.context > maxContext)) {
+			result = 1;
+			break;
+		}
+
+		CuriePME.iterateNeuronsToRestore(nd);
+	}
+
+	CuriePME.endRestoreMode();
+
+	return result;
+}
+
+int Intel_PMT::maxNeuronStateSize() {
+	return maxNeurons * sizeof(neuronData);
+}
+
 // custom initializer for the neural network
 void Intel_PMT::begin( 	uint16_t global_context,
 			PATTERN_MATCHING_DISTANCE_MODE distance_mode,
