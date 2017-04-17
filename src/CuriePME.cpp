@@ -47,7 +47,8 @@ void Intel_PMT::begin(void)
 
 int Intel_PMT::beginLearning(int category)
 {
-	if (category <= 0 || category > 32766) {
+	if (category < 0 || category > 32766)
+	{
 		return 0;
 	}
 
@@ -71,7 +72,14 @@ int Intel_PMT::beginClassify()
 
 int Intel_PMT::endClassify()
 {
-	return classify(_buffer, _bufferIndex);
+	int category = classify(_buffer, _bufferIndex);
+
+	if (category == noMatch)
+	{
+		category = PME_NO_CATEGORY;
+	}
+
+	return category;
 }
 
 size_t Intel_PMT::write(uint8_t b)
@@ -81,7 +89,8 @@ size_t Intel_PMT::write(uint8_t b)
 
 size_t Intel_PMT::write(const uint8_t *buffer, size_t size)
 {
-	if (size > (sizeof(_buffer) - _bufferIndex)) {
+	if (size > (sizeof(_buffer) - _bufferIndex))
+	{
 		size = sizeof(_buffer) - _bufferIndex;
 	}
 
@@ -104,15 +113,18 @@ int Intel_PMT::saveState(Stream& out)
 
 	CuriePME.beginSaveMode();
 
-	while (1) {
+	while (1)
+	{
 		uint16_t nCount = CuriePME.iterateNeuronsToSave(nd);
 
-		if ((nCount == 0) || (nCount == noMatch)) {
+		if ((nCount == 0) || (nCount == noMatch))
+		{
 			result = 1;
 			break;
 		}
 
-		if (out.write((const uint8_t*)&nd, sizeof(nd)) != sizeof(nd)) {
+		if (out.write((const uint8_t*)&nd, sizeof(nd)) != sizeof(nd))
+		{
 			break;
 		}
 	}
@@ -129,12 +141,15 @@ int Intel_PMT::restoreState(Stream& in)
 
 	CuriePME.beginRestoreMode();
 
-	while (1) {
-		if (in.readBytes((uint8_t*)&nd, sizeof(nd)) != sizeof(nd)) {
+	while (1)
+	{
+		if (in.readBytes((uint8_t*)&nd, sizeof(nd)) != sizeof(nd))
+		{
 			break;
 		}
 
-		if ((nd.context == minContext) || (nd.context > maxContext)) {
+		if ((nd.context == minContext) || (nd.context > maxContext))
+		{
 			result = 1;
 			break;
 		}
@@ -147,8 +162,67 @@ int Intel_PMT::restoreState(Stream& in)
 	return result;
 }
 
-int Intel_PMT::maxNeuronStateSize() {
+int Intel_PMT::maxNeuronStateSize()
+{
 	return maxNeurons * sizeof(neuronData);
+}
+
+int Intel_PMT::neuronsCommitted()
+{
+	return getCommittedCount();
+}
+
+int Intel_PMT::neuronDegenerated()
+{
+	return (regRead16(CAT) & CAT_DEGEN) ? 1 : 0;
+}
+
+void Intel_PMT::setMode(int mode)
+{
+	if (mode == PME_KNN_MODE)
+	{
+		setClassifierMode(KNN_Mode);
+	}
+	else
+	{
+		setClassifierMode(RBF_Mode);
+	}
+}
+
+void Intel_PMT::setContext(int context)
+{
+	if (context < 1 || context > 127)
+	{
+		context = 0;
+	}
+
+	setGlobalContext(context);
+}
+
+void Intel_PMT::setLearningInfluence(int min, int max)
+{
+	// cap min
+	if (min < 0)
+	{
+		min = 0;
+	}
+	else if (min > 65535)
+	{
+		min = 65535;
+	}
+
+	// cap max
+	if (max < 2)
+	{
+		max = 2;
+	}
+	else if (max > 65535)
+	{
+		max = 65535;
+	}
+
+	regWrite16( MINIF, min);
+	regWrite16( MAXIF, max);
 }
 
 // custom initializer for the neural network

@@ -104,6 +104,11 @@ void trainBMI(int category, byte height, byte weight) {
   CuriePME.write(height);
   CuriePME.write(weight);
   CuriePME.endLearning();
+
+  if (DEBUG) {
+    Serial.print("# of neuron's committed is now: ");
+    Serial.println(CuriePME.neuronsCommitted());
+  }
 }
 
 void classifyBMI(byte height, byte weight) {

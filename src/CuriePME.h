@@ -27,14 +27,23 @@ extern "C"
   #include <stdint.h>
 }
 
+typedef enum {
+  PME_RCE_MODE,
+  PME_KNN_MODE
+} pme_mode_t;
+
+#define PME_NO_CATEGORY 0
+#define PME_CONTEXT_ALL 0
+
 class Intel_PMT : Print
 {
+//// New proposed API's ///////////////////////////////////////////////////////////////////////////
 public:
-	int beginLearning(int category);
+	int beginLearning(int category); // category PME_NO_CATEGORY or 1 - 32766
 	int endLearning();
 
 	int beginClassify();
-	int endClassify();
+	int endClassify(); // returns the category or PME_NO_CATEGORY for no match
 
 	// from Print
 	virtual size_t write(uint8_t);
@@ -50,10 +59,20 @@ public:
 	int restoreState(Stream& in);
 	int maxNeuronStateSize();
 
+	int neuronsCommitted();
+	int neuronDegenerated();
+
+	void setMode(int mode); // PME_RCE_MODE or PME_KNN_MODE
+	void setContext(int context); // PME_CONTEXT_ALL or 1 - 127
+
+	void setLearningInfluence(int min, int max); // max: 2 and 65535, smaller => less conservative
+
 private:
 	uint16_t _category;
 	uint8_t _buffer[128];
 	uint16_t _bufferIndex;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 public:
 
