@@ -1,9 +1,26 @@
+/**
+ * This example provides an interactive end to end flow of training the
+ * pattern matching engine (PME) on the Curie module with the boards orientation
+ * using sensor data from the IMU's accelerometer.
+ * 
+ * A menu is presented on the serial monitor to:
+ * - determine the boards orientation (once trained)
+ * - train the boards current orientation
+ * - clear any trained state
+ * - save the trained state to the onboard SPI flash
+ * - restore the trained state from the onboard SPI flash
+ * 
+ * Note: when the board is reset or a sketch is loads, the train state is lost
+ * 
+ */
+
 #include <CurieIMU.h>
 #include <CurieSerialFlash.h>
 #include <CuriePME.h>
 
 const int NUM_ORIENTATIONS = 6;
 
+// constants to map category to String
 const String ORIENTATIONS[NUM_ORIENTATIONS] = {
   "Up",
   "Down",
@@ -13,6 +30,7 @@ const String ORIENTATIONS[NUM_ORIENTATIONS] = {
   "Connector up"
 };
 
+// filename to store/restore training state on SPI flash
 const char* filename = "CuriePME.dat";
 
 void setup() {

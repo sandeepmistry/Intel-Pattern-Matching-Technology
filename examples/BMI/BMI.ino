@@ -1,3 +1,13 @@
+/**
+ * This sketch demonstrates how yo train the pattern matching engine (PME)
+ * With the Body Mass Index (BMI) classification data from
+ * https://bmicalculator.mes.fm/bmi-chart
+ * 
+ * It then prompts the user to enter their height in cm and weight in kg
+ * on the Serial Monitor to classify their BMI category
+ * 
+ */
+
 #include <CuriePME.h>
 
 #include "data.h"

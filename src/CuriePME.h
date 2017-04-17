@@ -27,23 +27,68 @@ extern "C"
   #include <stdint.h>
 }
 
+//// New proposed API's ///////////////////////////////////////////////////////////////////////////
+
+// constants for the classification algorithim
 typedef enum {
-  PME_RCE_MODE,
-  PME_KNN_MODE
+	// the default, Restricted Coulomb Energy
+	PME_RCE_MODE,
+
+	// K-Nearest Neighbor
+	PME_KNN_MODE
 } pme_mode_t;
 
+// constants for the distance mode
+typedef enum {
+	// default, uses the drift of the sum of all components, good for when components have different units
+	PME_L1_NORM_DISTANCE_MODE, 
+
+	// uses the largest drift, good for noisy inputs
+	PME_LSUP_NORM_DISTANCE_MODE
+} pme_distance_mode_t;
+
+// used to return no category match or specify no category associated when learning
 #define PME_NO_CATEGORY 0
+
+// sets the global context to all, this enables the use of all neurons
 #define PME_CONTEXT_ALL 0
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 class Intel_PMT : Print
 {
 //// New proposed API's ///////////////////////////////////////////////////////////////////////////
 public:
-	int beginLearning(int category); // category PME_NO_CATEGORY or 1 - 32766
+	// Starts the learning process for the specified category. Use Print methods like .write(...)
+	// to send training data (up to 128 bytes)
+	//
+	// Parameters
+	// - category: PME_NO_CATEGORY or 1 - 32766
+	//
+	// Return Value
+	// 1 on success, 0 on failure (invalid category)
+	int beginLearning(int category);
+
+	// Ends the learning process started by beginLearning
+	//
+	// Return Value
+	// 1 on success, 0 on failure (invalid category)
 	int endLearning();
 
+
+	// Starts the classification process for the specified category. Use Print methods like .write(...)
+	// to send data (up to 128 bytes) that needs to be classified.
+	//
+	// Return Value
+	// 1 on success, 0 on failure
 	int beginClassify();
-	int endClassify(); // returns the category or PME_NO_CATEGORY for no match
+
+	// Ends the classification process started by beginClassify
+	//
+	// Return Value
+	// the category or PME_NO_CATEGORY (0) for no match
+	int endClassify();
 
 	// from Print
 	virtual size_t write(uint8_t);
@@ -54,18 +99,57 @@ public:
 	// 	return write((uint8_t*)&val, sizeof(T));
 	// }
 
+	// clears the state of any learning
 	void clearState();
+
+	// Saves the current training state to the specified output Stream.
+	// Up to maxNeuronStateSize() bytes will be written
+	//
+	// Return Value
+	// 1 on success, 0 on failure
 	int saveState(Stream& out);
+
+	// Restors the current training state to the specified input Stream.
+	// Up to maxNeuronStateSize() bytes will be read
+	//
+	// Return Value
+	// 1 on success, 0 on failure
 	int restoreState(Stream& in);
+
+	// reads the maximum size in bytes of the neuron state
 	int maxNeuronStateSize();
 
+	// returns the number of neurons that are currently committed with learning/training data
 	int neuronsCommitted();
+
+	// return if the last training/learning data
 	int neuronDegenerated();
 
-	void setMode(int mode); // PME_RCE_MODE or PME_KNN_MODE
-	void setContext(int context); // PME_CONTEXT_ALL or 1 - 127
+	// returns the distance calculation for the classification
+	int neuronDistance();
 
-	void setLearningInfluence(int min, int max); // max: 2 and 65535, smaller => less conservative
+	// set the classification mode: PME_RCE_MODE or PME_KNN_MODE
+	void setMode(int mode); 
+
+	// set the distance calculation mode: PME_L1_NORM_DISTANCE_MODE or PME_LSUP_NORM_DISTANCE_MODE
+	void setDistanceMode(int distanceMode);
+
+	// Sets the current glocal context. By default PME_CONTEXT_ALL is used which specified to use
+	// all neurons. You can use different contexts for different input componebts and the engine 
+	// will automatically distribute the neurons per context for you.
+	// Examples of different context are: 1 for audio data, 2 for video data.
+	//
+	// Parameters:
+	// - context: PME_CONTEXT_ALL or 1 - 127
+	void setContext(int context);
+
+	// Set the learning influence parameters
+	//
+	// Parameters
+	// - min: the miniumum learning influence, which controls the uncertainty domain
+	// - max: the maximum learning influence (between 2 and 65535), the smaller 
+	//        the value the more conservative the engine is
+	void setLearningInfluence(int min, int max);
 
 private:
 	uint16_t _category;

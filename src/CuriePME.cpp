@@ -82,6 +82,11 @@ int Intel_PMT::endClassify()
 	return category;
 }
 
+int Intel_PMT::neuronDistance()
+{
+	return getIDX_DIST();
+}
+
 size_t Intel_PMT::write(uint8_t b)
 {
 	return write(&b, sizeof(b));
@@ -186,6 +191,18 @@ void Intel_PMT::setMode(int mode)
 	else
 	{
 		setClassifierMode(RBF_Mode);
+	}
+}
+
+void Intel_PMT::setDistanceMode(int distanceMode)
+{
+	if (distanceMode == PME_LSUP_NORM_DISTANCE_MODE)
+	{
+		setDistanceMode(LSUP_Distance);
+	}
+	else
+	{
+		setDistanceMode(L1_Distance);
 	}
 }
 
