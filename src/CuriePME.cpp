@@ -72,7 +72,19 @@ int Intel_PMT::beginClassify()
 
 int Intel_PMT::endClassify()
 {
-	int category = classify(_buffer, _bufferIndex);
+	int category;
+
+	if (getClassifierMode() == RBF_Mode)
+	{
+		category = classify(_buffer, _bufferIndex);
+	}
+	else
+	{
+		writeVector(_buffer, _bufferIndex);
+
+		_distance = getIDX_DIST();
+		category = getCAT();
+	}
 
 	if (category == noMatch)
 	{
@@ -84,7 +96,7 @@ int Intel_PMT::endClassify()
 
 int Intel_PMT::neuronDistance()
 {
-	return getIDX_DIST();
+	return _distance;
 }
 
 size_t Intel_PMT::write(uint8_t b)
