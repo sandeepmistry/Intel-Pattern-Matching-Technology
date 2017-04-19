@@ -72,7 +72,11 @@ int Intel_PMT::beginClassify()
 
 int Intel_PMT::endClassify()
 {
-	int category = classify(_buffer, _bufferIndex);
+	writeVector(_buffer, _bufferIndex);
+
+	_distance = getIDX_DIST();
+
+	int category = (getCAT() & CAT_CATEGORY);
 
 	if (category == noMatch)
 	{
@@ -80,6 +84,11 @@ int Intel_PMT::endClassify()
 	}
 
 	return category;
+}
+
+int Intel_PMT::classifyDistance()
+{
+	return _distance;
 }
 
 size_t Intel_PMT::write(uint8_t b)

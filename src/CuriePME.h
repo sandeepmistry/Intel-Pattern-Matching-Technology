@@ -81,6 +81,9 @@ public:
 	// the category or PME_NO_CATEGORY (0) for no match
 	int endClassify();
 
+	// returns the distance of category return by endClassify
+	int classifyDistance();
+
 	// from Print
 	virtual size_t write(uint8_t);
 	virtual size_t write(const uint8_t *buffer, size_t size);
