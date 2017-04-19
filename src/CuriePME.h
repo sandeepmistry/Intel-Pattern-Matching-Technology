@@ -29,15 +29,6 @@ extern "C"
 
 //// New proposed API's ///////////////////////////////////////////////////////////////////////////
 
-// constants for the classification algorithim
-typedef enum {
-	// the default, Restricted Coulomb Energy
-	PME_RCE_MODE,
-
-	// K-Nearest Neighbor
-	PME_KNN_MODE
-} pme_mode_t;
-
 // constants for the distance mode
 typedef enum {
 	// default, uses the drift of the sum of all components, good for when components have different units
@@ -122,14 +113,8 @@ public:
 	// returns the number of neurons that are currently committed with learning/training data
 	int neuronsCommitted();
 
-	// return if the last training/learning data
+	// return if the last training/learning data de-generated a neuron
 	int neuronDegenerated();
-
-	// returns the distance calculation for the classification
-	int neuronDistance();
-
-	// set the classification mode: PME_RCE_MODE or PME_KNN_MODE
-	void setMode(int mode); 
 
 	// set the distance calculation mode: PME_L1_NORM_DISTANCE_MODE or PME_LSUP_NORM_DISTANCE_MODE
 	void setDistanceMode(int distanceMode);

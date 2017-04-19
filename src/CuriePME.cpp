@@ -72,19 +72,7 @@ int Intel_PMT::beginClassify()
 
 int Intel_PMT::endClassify()
 {
-	int category;
-
-	if (getClassifierMode() == RBF_Mode)
-	{
-		category = classify(_buffer, _bufferIndex);
-	}
-	else
-	{
-		writeVector(_buffer, _bufferIndex);
-
-		_distance = getIDX_DIST();
-		category = getCAT();
-	}
+	int category = classify(_buffer, _bufferIndex);
 
 	if (category == noMatch)
 	{
@@ -92,11 +80,6 @@ int Intel_PMT::endClassify()
 	}
 
 	return category;
-}
-
-int Intel_PMT::neuronDistance()
-{
-	return _distance;
 }
 
 size_t Intel_PMT::write(uint8_t b)
@@ -192,18 +175,6 @@ int Intel_PMT::neuronsCommitted()
 int Intel_PMT::neuronDegenerated()
 {
 	return (regRead16(CAT) & CAT_DEGEN) ? 1 : 0;
-}
-
-void Intel_PMT::setMode(int mode)
-{
-	if (mode == PME_KNN_MODE)
-	{
-		setClassifierMode(KNN_Mode);
-	}
-	else
-	{
-		setClassifierMode(RBF_Mode);
-	}
 }
 
 void Intel_PMT::setDistanceMode(int distanceMode)
