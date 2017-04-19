@@ -60,6 +60,11 @@ int Intel_PMT::beginLearning(int category)
 
 int Intel_PMT::endLearning()
 {
+	// KNN needs to be disabled for learning mode,
+	// otherwise only vector per category will be
+	// stored
+	setClassifierMode(CuriePME.RBF_Mode);
+
 	return learn(_buffer, _bufferIndex, _category);
 }
 
@@ -70,13 +75,119 @@ int Intel_PMT::beginClassify()
 	return 1;
 }
 
-int Intel_PMT::endClassify()
+int Intel_PMT::endClassify(int k)
 {
+	if (k < 0)
+	{
+		// invalid arg
+		return PME_NO_CATEGORY;
+	}
+	else if (k == 0)
+	{
+		setClassifierMode(CuriePME.RBF_Mode);
+	}
+	else
+	{
+		setClassifierMode(CuriePME.KNN_Mode);
+	}
+
 	writeVector(_buffer, _bufferIndex);
 
-	_distance = getIDX_DIST();
+	int category;
 
-	int category = (getCAT() & CAT_CATEGORY);
+	if (k == 0 || k == 1)
+	{
+		_distance = getIDX_DIST();
+
+		category = (getCAT() & CAT_CATEGORY);
+	}
+	else
+	{
+		struct {
+			uint16_t category;
+			uint16_t distance;
+		} results[k];
+
+		int numResults = 0;
+
+		// read in the results
+		while ( ((results[numResults].distance == getIDX_DIST()) != 0xffff) && (numResults < k) )
+		{
+			results[numResults].category = (getCAT() & CAT_CATEGORY);
+
+			numResults++;
+		}
+
+		if (numResults == 0)
+		{
+			// no match
+			category = noMatch;
+			_distance = 0xffff;
+		}
+		else
+		{
+			if (k > numResults) {
+				// cap K to the number of results
+				k = numResults;
+			}
+
+			struct {
+				uint16_t category;
+				int count;
+			} categoryCounts[k];
+
+			for (int i = 0; i < k; i++)
+			{
+				categoryCounts[i].category = PME_NO_CATEGORY;
+				categoryCounts[i].count = 0;
+			}
+
+			for (int i = 0; i < k; i++)
+			{
+				int c = results[i].category;
+				int cIndex = 0;
+
+				// try to find the category index
+				for (cIndex = 0; cIndex < k; cIndex++)
+				{
+					if (categoryCounts[cIndex].category == PME_NO_CATEGORY)
+					{
+						break;
+					}
+					else if (categoryCounts[cIndex].category == c)
+					{
+						break;
+					}
+				}
+
+				categoryCounts[cIndex].category = c;
+				categoryCounts[cIndex].count++;
+			}
+
+			int maxCount = categoryCounts[0].count;
+			category = categoryCounts[0].category;
+
+			for (int i = 1; i < k; i++)
+			{
+				if (categoryCounts[i].count > maxCount)
+				{
+					category = categoryCounts[i].category;
+					maxCount = categoryCounts[i].count; 
+				}
+			}
+
+			_distance = 0xffff;
+
+			for (int i = 0; i < k; i++)
+			{
+				if ((results[i].category) == category && (_distance > results[i].distance))
+				{
+					_distance = results[i].distance;
+					break;
+				}
+			}
+		}
+	}
 
 	if (category == noMatch)
 	{

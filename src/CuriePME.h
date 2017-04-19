@@ -79,7 +79,7 @@ public:
 	//
 	// Return Value
 	// the category or PME_NO_CATEGORY (0) for no match
-	int endClassify();
+	int endClassify(int k = 0);
 
 	// returns the distance of category return by endClassify
 	int classifyDistance();
