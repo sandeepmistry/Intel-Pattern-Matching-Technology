@@ -111,7 +111,7 @@ int Intel_PMT::endClassify(int k)
 		int numResults = 0;
 
 		// read in the results
-		while ( ((results[numResults].distance == getIDX_DIST()) != 0xffff) && (numResults < k) )
+		while ( ((results[numResults].distance = getIDX_DIST()) != 0xffff) && (numResults < k) )
 		{
 			results[numResults].category = (getCAT() & CAT_CATEGORY);
 
@@ -200,6 +200,55 @@ int Intel_PMT::endClassify(int k)
 int Intel_PMT::classifyDistance()
 {
 	return _distance;
+}
+
+
+int Intel_PMT::beginRegression()
+{
+	_bufferIndex = 0;
+
+	return 1;
+}
+
+float Intel_PMT::endRegression(int k)
+{
+	if (k < 0)
+	{
+		// invalid arg
+		return PME_NO_CATEGORY;
+	}
+
+	setClassifierMode(CuriePME.KNN_Mode);
+	writeVector(_buffer, _bufferIndex);
+
+	float categoryTotal = 0;
+	float distanceTotal = 0;
+	int numResults = 0;
+	int distance;
+
+	// read in the results
+	while ( ((distance = getIDX_DIST()) != 0xffff) && (numResults < k) )
+	{
+		categoryTotal += (getCAT() & CAT_CATEGORY);
+		distanceTotal += distance;
+
+		numResults++;
+	}
+
+	if (numResults == 0)
+	{
+		return PME_NO_CATEGORY;
+	}
+
+	float categoryAverage = categoryTotal / numResults;
+	_regressionDistance = distanceTotal / numResults;
+
+	return categoryAverage;
+}
+
+float Intel_PMT::regressionDistance()
+{
+	return _regressionDistance;
 }
 
 size_t Intel_PMT::write(uint8_t b)

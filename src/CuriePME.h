@@ -84,6 +84,11 @@ public:
 	// returns the distance of category return by endClassify
 	int classifyDistance();
 
+
+	int beginRegression();
+	float endRegression(int k);
+	float regressionDistance();
+
 	// from Print
 	virtual size_t write(uint8_t);
 	virtual size_t write(const uint8_t *buffer, size_t size);
@@ -144,6 +149,7 @@ private:
 	uint8_t _buffer[128];
 	uint16_t _bufferIndex;
 	int _distance;
+	float _regressionDistance;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
