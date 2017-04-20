@@ -84,6 +84,9 @@ void train() {
   Serial.println(" entries from the BMI table");
   Serial.println();
 
+  // have a fixed random seed for reproducibility
+  randomSeed(0);
+
   for (int i = 0; i < TRAINING_COUNT; i++) {
     // determine a random index in the data to use from training
     int tableIndex = random(BMI_TABLE_ENTRY_COUNT - 1);
