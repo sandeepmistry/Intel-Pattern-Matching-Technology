@@ -45,7 +45,7 @@ void Intel_PMT::begin(void)
 
 }
 
-int Intel_PMT::beginLearning(int category)
+int Intel_PMT::beginTraining(int category)
 {
 	if (category < 0 || category > 32766)
 	{
@@ -58,7 +58,7 @@ int Intel_PMT::beginLearning(int category)
 	return 1;
 }
 
-int Intel_PMT::endLearning()
+int Intel_PMT::endTraining()
 {
 	// KNN needs to be disabled for learning mode,
 	// otherwise only vector per category will be

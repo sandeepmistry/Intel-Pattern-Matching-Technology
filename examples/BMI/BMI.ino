@@ -110,10 +110,10 @@ void trainBMI(int category, byte height, byte weight) {
     Serial.println(" kg");
   }
 
-  CuriePME.beginLearning(category);
+  CuriePME.beginTraining(category);
   CuriePME.write(height);
   CuriePME.write(weight);
-  CuriePME.endLearning();
+  CuriePME.endTraining();
 
   if (DEBUG) {
     Serial.print("# of neuron's committed is now: ");

@@ -143,11 +143,11 @@ void trainOrientation() {
     byte y = (byte) map(rawY, -32768, 32767, 0, 255);
     byte z = (byte) map(rawZ, -32768, 32767, 0, 255);
 
-    CuriePME.beginLearning(category);
+    CuriePME.beginTraining(category);
     CuriePME.write(x);
     CuriePME.write(y);
     CuriePME.write(z);
-    CuriePME.endLearning();
+    CuriePME.endTraining();
 
     Serial.print("Added training data for orienation: ");
     Serial.println(ORIENTATIONS[category - 1]);

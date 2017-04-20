@@ -51,7 +51,7 @@ class Intel_PMT : Print
 {
 //// New proposed API's ///////////////////////////////////////////////////////////////////////////
 public:
-	// Starts the learning process for the specified category. Use Print methods like .write(...)
+	// Starts the training process for the specified category. Use Print methods like .write(...)
 	// to send training data (up to 128 bytes)
 	//
 	// Parameters
@@ -59,13 +59,13 @@ public:
 	//
 	// Return Value
 	// 1 on success, 0 on failure (invalid category)
-	int beginLearning(int category);
+	int beginTraining(int category);
 
 	// Ends the learning process started by beginLearning
 	//
 	// Return Value
 	// 1 on success, 0 on failure (invalid category)
-	int endLearning();
+	int endTraining();
 
 
 	// Starts the classification process for the specified category. Use Print methods like .write(...)
