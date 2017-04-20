@@ -68,15 +68,23 @@ int Intel_PMT::endTraining()
 	return learn(_buffer, _bufferIndex, _category);
 }
 
-int Intel_PMT::beginClassify()
+int Intel_PMT::beginClassify(int k)
 {
+	if (k < 0)
+	{
+		return 0;
+	}
+
+	_k = k;
 	_bufferIndex = 0;
 
 	return 1;
 }
 
-int Intel_PMT::endClassify(int k)
+int Intel_PMT::endClassify()
 {
+	int k = _k;
+
 	if (k < 0)
 	{
 		// invalid arg
@@ -203,16 +211,24 @@ int Intel_PMT::classifyDistance()
 }
 
 
-int Intel_PMT::beginRegression()
+int Intel_PMT::beginRegression(int k)
 {
+	if (k <= 0)
+	{
+		return 0;
+	}
+
+	_k = k;
 	_bufferIndex = 0;
 
 	return 1;
 }
 
-float Intel_PMT::endRegression(int k)
+float Intel_PMT::endRegression()
 {
-	if (k < 0)
+	int k = _k;
+
+	if (k <= 0)
 	{
 		// invalid arg
 		return PME_NO_CATEGORY;

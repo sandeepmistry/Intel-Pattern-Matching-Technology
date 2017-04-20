@@ -73,20 +73,20 @@ public:
 	//
 	// Return Value
 	// 1 on success, 0 on failure
-	int beginClassify();
+	int beginClassify(int k = 0);
 
 	// Ends the classification process started by beginClassify
 	//
 	// Return Value
 	// the category or PME_NO_CATEGORY (0) for no match
-	int endClassify(int k = 0);
+	int endClassify();
 
 	// returns the distance of category return by endClassify
 	int classifyDistance();
 
 
-	int beginRegression();
-	float endRegression(int k);
+	int beginRegression(int k);
+	float endRegression();
 	float regressionDistance();
 
 	// from Print
@@ -145,6 +145,7 @@ public:
 	void setLearningInfluence(int min, int max);
 
 private:
+	int _k;
 	uint16_t _category;
 	uint8_t _buffer[128];
 	uint16_t _bufferIndex;
